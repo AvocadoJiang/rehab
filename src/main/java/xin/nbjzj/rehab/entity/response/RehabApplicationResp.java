@@ -28,6 +28,9 @@ public class RehabApplicationResp implements Serializable {
 	@ApiModelProperty(value="工伤康复申请结果")
 	private boolean rehabilitationApplication_result;
 	
+	@ApiModelProperty(value="患者姓名")
+	private String patient_name;
+	
 	
 	//工伤认定信息
 	@ApiModelProperty(value="工伤认定决定书结果")
@@ -43,7 +46,7 @@ public class RehabApplicationResp implements Serializable {
 		this.doctor_name = entity.getDoctor().getUserName();
 		this.doctor_opinion = entity.getDoctorOpinion();
 		this.rehabilitationApplication_result = entity.isRehabilitationApplicationResult();
-		
+		this.patient_name = entity.getWorkInjuryCertificate().getPatient().getUserName();
 		this.workInjuryCertificate_result = entity.getWorkInjuryCertificate().isWorkInjuryCertificateResult();
 		this.disability_level = entity.getWorkInjuryCertificate().getDisabilityLevel();
 	}
