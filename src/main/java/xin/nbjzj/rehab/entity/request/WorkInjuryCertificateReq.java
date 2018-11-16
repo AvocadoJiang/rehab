@@ -11,10 +11,6 @@ import lombok.Data;
 @ApiModel(value="workInjuryCertificateReq",description="工伤认定")
 @Data
 public class WorkInjuryCertificateReq {
-	@ApiModelProperty(value="病人用户ID")
-	@NotBlank
-	private String patient_id;
-	
 	@ApiModelProperty(value="受理机构ID")
 	@NotBlank
 	private String admin_id;

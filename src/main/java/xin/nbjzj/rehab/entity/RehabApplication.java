@@ -19,18 +19,18 @@ public class RehabApplication {
 	@Id
 	private String rehabilitationApplicationID;
 	
-	@DBRef
-	/** 工伤认定决定书 **/
-	private WorkInjuryCertificate workInjuryCertificate;
 	
+	/** 工伤认定决定书 **/
+	@DBRef
+	private WorkInjuryCertificate workInjuryCertificate;
 	private String workInjuryCertificateID;
 	
 	/** 申请康复治疗理由 **/
 	private String rehabilitationReason;
 	
 	//申请结果
-	@DBRef
 	/** 主治医生 **/
+	@DBRef
 	private User doctor;
 	private String doctorID;
 	

@@ -26,18 +26,26 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import xin.nbjzj.rehab.entity.request.RehabApplicationReq;
 import xin.nbjzj.rehab.entity.response.RehabApplicationResp;
+import xin.nbjzj.rehab.globle.Constants;
+import xin.nbjzj.rehab.advice.exceptions.CheckException;
 import xin.nbjzj.rehab.entity.RehabApplication;
 import xin.nbjzj.rehab.service.reactive.RehabApplicationReactive;
+import xin.nbjzj.rehab.service.repository.UserRepository;
+import xin.nbjzj.rehab.service.repository.WorkInjuryCertificateRepository;
 
 @Api(tags = "工伤康复申请相关接口")
 @RestController
 @RequestMapping("/rehab")
 public class RehabApplicationController {
 	RehabApplicationReactive rehabApplicationReactive;
-
-	public RehabApplicationController(RehabApplicationReactive rehabApplicationReactive) {
+	private WorkInjuryCertificateRepository workInjuryCertificateRepository;
+	private UserRepository userRepository;
+	
+	public RehabApplicationController(RehabApplicationReactive rehabApplicationReactive,UserRepository userRepository,WorkInjuryCertificateRepository workInjuryCertificateRepository) {
 		super();
 		this.rehabApplicationReactive = rehabApplicationReactive;
+		this.userRepository = userRepository;
+		this.workInjuryCertificateRepository = workInjuryCertificateRepository;
 	}
 	@ApiOperation(value = "获取全部工伤康复申请" ,  notes="获取全部工伤康复申请,以数组形式一次性返回数据")
 	@ApiResponses({@ApiResponse(code = 200, message = "操作成功",response = RehabApplicationResp.class),
@@ -131,6 +139,16 @@ public class RehabApplicationController {
 	}
 	
 	private void RehabApplicationCheck(@Valid RehabApplication entity) {
+		//doctorID
+		if(!userRepository.existsById(entity.getDoctorID())) {
+			throw new CheckException("doctor_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		}
 		
+		//workInjuryCertificateID
+		if(!workInjuryCertificateRepository.existsById(entity.getWorkInjuryCertificateID())) {
+			throw new CheckException("workInjuryCertificate_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		}
+		entity.setDoctor(userRepository.findById(entity.getDoctorID()).get());
+		entity.setWorkInjuryCertificate(workInjuryCertificateRepository.findById(entity.getWorkInjuryCertificateID()).get());
 	}
 }

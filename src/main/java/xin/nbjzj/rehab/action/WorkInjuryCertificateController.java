@@ -26,18 +26,25 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import xin.nbjzj.rehab.entity.request.WorkInjuryCertificateReq;
 import xin.nbjzj.rehab.entity.response.WorkInjuryCertificateResp;
+import xin.nbjzj.rehab.globle.Constants;
+import xin.nbjzj.rehab.advice.exceptions.CheckException;
 import xin.nbjzj.rehab.entity.WorkInjuryCertificate;
 import xin.nbjzj.rehab.service.reactive.WorkInjuryCertificateReactive;
+import xin.nbjzj.rehab.service.repository.ClinicalInfoRepository;
+import xin.nbjzj.rehab.service.repository.UserRepository;
 
 @Api(tags = "工伤认定相关接口")
 @RestController
 @RequestMapping("/work")
 public class WorkInjuryCertificateController {
 	private WorkInjuryCertificateReactive workInjuryCertificateReactive;
-
-	public WorkInjuryCertificateController(WorkInjuryCertificateReactive workInjuryCertificateReactive) {
+	private ClinicalInfoRepository clinicalInfoRepository;
+	private UserRepository userRepository;
+	public WorkInjuryCertificateController(WorkInjuryCertificateReactive workInjuryCertificateReactive,ClinicalInfoRepository clinicalInfoRepository,UserRepository userRepository) {
 		super();
 		this.workInjuryCertificateReactive = workInjuryCertificateReactive;
+		this.clinicalInfoRepository = clinicalInfoRepository;
+		this.userRepository = userRepository;
 	}
 	
 	@ApiOperation(value = "获取全部工伤认定" ,  notes="获取全部工伤认定,以数组形式一次性返回数据")
@@ -143,7 +150,17 @@ public class WorkInjuryCertificateController {
 	}
 	
 	private void WorkInjuryCertificateCheck(@Valid WorkInjuryCertificate entity) {
+		//adminID
+		if(!userRepository.existsById(entity.getAdminID())) {
+			throw new CheckException("admin_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		}
 		
+		//clinicalInfoID
+		if(!clinicalInfoRepository.existsById(entity.getClinicalInfoID())) {
+			throw new CheckException("clinicalInfo_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		}
+		entity.setAdmin(userRepository.findById(entity.getAdminID()).get());
+		entity.setClinicalInfo(clinicalInfoRepository.findById(entity.getClinicalInfoID()).get());
 	}
 	
 }

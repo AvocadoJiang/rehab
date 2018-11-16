@@ -20,16 +20,16 @@ public class ClinicalInfo {
 	@Id
 	private String clinicalInfoID;
 	
-	@DBRef
+	
 	/** 病人 **/
-	private User patient;
-	
 	@DBRef
-	/** 医生 **/
-	private User doctor;
-	
+	private User patient;
 	private String patientID;
 	
+	
+	/** 医生 **/
+	@DBRef
+	private User doctor;
 	private String doctorID;
 	
 	/** 摘要 **/

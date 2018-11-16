@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import xin.nbjzj.rehab.advice.exceptions.CheckException;
+import xin.nbjzj.rehab.globle.Constants;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -28,16 +31,19 @@ import xin.nbjzj.rehab.entity.request.ClinicalInfoReq;
 import xin.nbjzj.rehab.entity.response.ClinicalInfoResp;
 import xin.nbjzj.rehab.entity.ClinicalInfo;
 import xin.nbjzj.rehab.service.reactive.ClinicalInfoReactive;
+import xin.nbjzj.rehab.service.repository.UserRepository;
 
 @Api(tags = "临床医疗信息相关接口")
 @RestController
 @RequestMapping("/clinic")
 public class ClinicalInfoController {
 	private ClinicalInfoReactive clinicalInfoReactive;
+	private UserRepository userRepository;
 
-	public ClinicalInfoController(ClinicalInfoReactive clinicalInfoReactive) {
+	public ClinicalInfoController(ClinicalInfoReactive clinicalInfoReactive,UserRepository userRepository) {
 		super();
 		this.clinicalInfoReactive = clinicalInfoReactive;
+		this.userRepository = userRepository;
 	}
 	@ApiOperation(value = "获取全部临床医疗信息" ,  notes="获取全部临床医疗信息,以数组形式一次性返回数据")
 	@ApiResponses({@ApiResponse(code = 200, message = "操作成功",response = ClinicalInfoResp.class),
@@ -133,6 +139,18 @@ public class ClinicalInfoController {
 	}
 	
 	private void ClinicalInfoCheck(@Valid ClinicalInfo entity) {
+		//patientID
+		if(!userRepository.existsById(entity.getPatientID())) {
+			throw new CheckException("patient_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		}
+		
+		//doctorID
+		if(!userRepository.existsById(entity.getDoctorID())) {
+			throw new CheckException("doctor_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		}
+		entity.setPatient(userRepository.findById(entity.getPatientID()).get());
+		entity.setDoctor(userRepository.findById(entity.getDoctorID()).get());
+		
 		
 	}
 	

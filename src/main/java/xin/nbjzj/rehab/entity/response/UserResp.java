@@ -47,4 +47,8 @@ public class UserResp implements Serializable {
 		this.institution = entity.getInstitution();
 		this.address = entity.getAddress();
 	}
+	
+	public UserResp() {
+		super();
+	}
 }

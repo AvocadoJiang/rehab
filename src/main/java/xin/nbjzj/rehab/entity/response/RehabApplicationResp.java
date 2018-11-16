@@ -46,7 +46,7 @@ public class RehabApplicationResp implements Serializable {
 		this.doctor_name = entity.getDoctor().getUserName();
 		this.doctor_opinion = entity.getDoctorOpinion();
 		this.rehabilitationApplication_result = entity.isRehabilitationApplicationResult();
-		this.patient_name = entity.getWorkInjuryCertificate().getPatient().getUserName();
+		this.patient_name = entity.getWorkInjuryCertificate().getClinicalInfo().getPatient().getUserName();
 		this.workInjuryCertificate_result = entity.getWorkInjuryCertificate().isWorkInjuryCertificateResult();
 		this.disability_level = entity.getWorkInjuryCertificate().getDisabilityLevel();
 	}

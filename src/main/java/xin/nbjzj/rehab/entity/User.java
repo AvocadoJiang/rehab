@@ -1,11 +1,13 @@
 package xin.nbjzj.rehab.entity;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 
 
 import lombok.Data;
+import xin.nbjzj.rehab.entity.request.LoginReq;
 import xin.nbjzj.rehab.entity.request.UserReq;
 
 
@@ -36,6 +38,7 @@ public class User {
 	private String gender;
 	
 	/** 联系方式 **/
+	@Indexed(unique=true)
 	private String phone;
 	
 	/** 身份证号码 **/
@@ -86,5 +89,11 @@ public class User {
 		this.phone = req.getPhone();
 		this.userName = req.getUser_name();
 		
+	}
+	
+	public User(LoginReq req) {
+		super();
+		this.phone = req.getPhone();
+		this.password = req.getPassword();
 	}
 }

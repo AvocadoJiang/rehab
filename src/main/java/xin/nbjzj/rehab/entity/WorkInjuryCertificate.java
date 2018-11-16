@@ -20,22 +20,16 @@ public class WorkInjuryCertificate {
 	
 	@Id
 	private String workInjuryCertificateID;
-	
-	/** 病人 **/
-	@DBRef
-	private User patient;
-	
-	@DBRef
+
 	/** 受理机关 **/
-	private User admin;
-	
 	@DBRef
-	/** 临床诊疗信息 **/
-	private ClinicalInfo clinicalInfo;
+	private User admin;
+	private String adminID;
 	
-	private String patient_id;
-	private String admin_id;
-	private String clinicalInfo_id;
+	/** 临床诊疗信息 **/
+	@DBRef
+	private ClinicalInfo clinicalInfo;
+	private String clinicalInfoID;
 	
 	
 	/** 事故地点 **/
@@ -70,11 +64,11 @@ public class WorkInjuryCertificate {
 	
 	public WorkInjuryCertificate(WorkInjuryCertificateReq req) {
 		super();
-		this.patient_id = req.getPatient_id();
-		this.admin_id = req.getAdmin_id();
-		this.clinicalInfo_id = req.getClinicalInfo_id();
+		this.adminID = req.getAdmin_id();
+		this.clinicalInfoID = req.getClinicalInfo_id();
 		this.accidentTime = req.getAccident_time();
 		this.accidentProcess = req.getAccident_process();
+		this.accidentPlace = req.getAccident_place();
 		this.injuredPart = req.getInjured_part();
 		this.institutionOpinion = req.getInstitution_opinion();
 		this.adminOpinion = req.getAdmin_opinion();

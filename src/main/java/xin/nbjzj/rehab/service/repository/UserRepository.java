@@ -4,6 +4,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import xin.nbjzj.rehab.entity.User;
 
-public interface UserRespository extends MongoRepository<User,String> {
-
+public interface UserRepository extends MongoRepository<User,String> {
+	User findByPhone(String phone);
 }

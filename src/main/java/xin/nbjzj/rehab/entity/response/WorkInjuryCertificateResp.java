@@ -12,6 +12,9 @@ import xin.nbjzj.rehab.entity.WorkInjuryCertificate;
 @Data
 public class WorkInjuryCertificateResp implements Serializable {
 
+	@ApiModelProperty(value="主键")
+	private String workInjuryCertificate_id;
+	
 	@ApiModelProperty(value="病人姓名（要病人其他信息和蒋周杰说）")
 	private String patient_name;
 	
@@ -60,7 +63,8 @@ public class WorkInjuryCertificateResp implements Serializable {
 
 	public WorkInjuryCertificateResp(WorkInjuryCertificate entity) {
 		super();
-		this.patient_name = entity.getPatient().getUserName();
+		this.workInjuryCertificate_id = entity.getWorkInjuryCertificateID();
+		this.patient_name = entity.getClinicalInfo().getPatient().getUserName();
 		this.admin_name = entity.getAdmin().getUserName();
 		this.summary = entity.getClinicalInfo().getSummary();
 		this.diagnosis = entity.getClinicalInfo().getDiagnosis();
