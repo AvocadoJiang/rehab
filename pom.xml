@@ -10,7 +10,7 @@
 
 	<name>rehab</name>
 	<description>Demo project for Spring Boot</description>
-
+	<!-- 会加载Spring Boot应用所需的所有默认配置 -->
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -22,9 +22,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
+		<fastjson.version>1.2.29</fastjson.version>
 	</properties>
 
 	<dependencies>
+		<!-- Web应用 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -79,6 +81,73 @@
 	        <version>2.5.0</version>
 	    </dependency>
 	    
+	    <!--rocksdb start-->
+		<dependency>
+			<groupId>org.rocksdb</groupId>
+			<artifactId>rocksdbjni</artifactId>
+			<version>5.10.3</version>
+		</dependency>
+		<!--rocksdb end-->
+		
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>${fastjson.version}</version>
+		</dependency>
+		
+		
+<!-- common中加密相关 -->
+		<!-- sha256 -->
+	    <dependency>
+			<groupId>cn.hutool</groupId>
+			<artifactId>hutool-all</artifactId>
+			<version>4.0.5</version>
+		</dependency>
+		<!-- sha256 -->
+		
+		<!-- AES -->
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.55</version>
+		</dependency>
+		<!-- AES -->
+		
+		<dependency>
+			<groupId>com.madgag.spongycastle</groupId>
+			<artifactId>core</artifactId>
+			<version>1.54.0.0</version>
+		</dependency>
+		<!-- 用于配置数据源 -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-dbcp2</artifactId>
+			<version>2.1.1</version>
+		</dependency>
+		<!-- Base64等编码 -->
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.10</version>
+		</dependency>
+		<!-- Base64等编码 -->
+		
+<!-- common中加密相关 -->		
+		<!--t-io-->
+		<dependency>
+			<groupId>org.t-io</groupId>
+			<artifactId>tio-core</artifactId>
+			<version>2.2.0.v20180405-RELEASE</version>
+		</dependency>
+		<!--t-io end-->
+		
+		<!--disruptor begin-->
+		<dependency>
+			<groupId>com.lmax</groupId>
+			<artifactId>disruptor</artifactId>
+			<version>3.4.1</version>
+		</dependency>
+		<!--disruptor end-->
 	</dependencies>
 
 	<build>
