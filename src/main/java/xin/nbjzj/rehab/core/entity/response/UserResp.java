@@ -13,7 +13,7 @@ import xin.nbjzj.rehab.core.entity.User;
 @Data
 public class UserResp implements Serializable {
 	@ApiModelProperty(value="用户主键")
-	private String user_id;
+	private Long user_id;
 	
 	@ApiModelProperty(value="用户姓名",example="蒋周杰")
 	private String user_name;

@@ -6,6 +6,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -29,23 +30,22 @@ import xin.nbjzj.rehab.core.entity.request.WorkInjuryCertificateReq;
 public class WorkInjuryCertificate {
 	
 	@Id
-	@GeneratedValue(generator = "uuid")
-	@GenericGenerator(name = "uuid", strategy = "uuid")
-	private String workInjuryCertificateID;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long workInjuryCertificateID;
 
 	/** 受理机关 **/
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name="adminID")
 	private User admin;
 	@Transient
-	private String adminID;
+	private Long adminID;
 	
 	/** 临床诊疗信息 **/
-	@ManyToOne(fetch = FetchType.LAZY,optional=false)
+	@ManyToOne(fetch = FetchType.EAGER,optional=false)
 	@JoinColumn(name="clinicalInfoID")
 	private ClinicalInfo clinicalInfo;
 	@Transient
-	private String clinicalInfoID;
+	private Long clinicalInfoID;
 	
 	/** 事故地点 **/
 	private String accidentPlace;

@@ -105,7 +105,7 @@ public class ClinicalInfoController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@DeleteMapping("/{clinicalInfo_id}")
-	public ResponseEntity<Void> delete(@PathVariable("clinicalInfo_id")String clinicalInfo_id,HttpSession session){
+	public ResponseEntity<Void> delete(@PathVariable("clinicalInfo_id")Long clinicalInfo_id,HttpSession session){
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 		return clinicalInfoRepository.findById(clinicalInfo_id)
 				.map(entity->{
@@ -121,10 +121,12 @@ public class ClinicalInfoController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PutMapping("/{clinicalInfo_id}")
-	public ResponseEntity<ClinicalInfoResp> update(@PathVariable("clinicalInfo_id")String clinicalInfo_id,
+	public ResponseEntity<ClinicalInfoResp> update(@PathVariable("clinicalInfo_id")Long clinicalInfo_id,
 			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody ClinicalInfoReq clinicalInfoReq,HttpSession session){
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
+		
 		ClinicalInfo clinicalInfo = new ClinicalInfo(clinicalInfoReq);
+		
 		return clinicalInfoRepository.findById(clinicalInfo_id)
 				.map(entity->{
 					if(StringUtils.isNotBlank(clinicalInfo.getDiagnosis())) {
@@ -136,9 +138,12 @@ public class ClinicalInfoController {
 					if(StringUtils.isNotBlank(clinicalInfo.getSummary())) {
 						entity.setSummary(clinicalInfo.getSummary());
 					}
-					
-					
-					
+					if(clinicalInfo.getDoctorID()!=null) {
+						entity.setDoctorID(clinicalInfo.getDoctorID());
+					}
+					if(clinicalInfo.getPatientID()!=null) {
+						entity.setPatientID(clinicalInfo.getPatientID());
+					}
 					ClinicalInfoCheck(entity);
 					blockService.constructBlock(Operation.UPDATE, entity, keys);
 					return entity;})
@@ -153,7 +158,7 @@ public class ClinicalInfoController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/{clinicalInfo_id}")
-	public  ResponseEntity<ClinicalInfoResp> findByID(@PathVariable("clinicalInfo_id")String clinicalInfo_id){
+	public  ResponseEntity<ClinicalInfoResp> findByID(@PathVariable("clinicalInfo_id")Long clinicalInfo_id){
 		return clinicalInfoRepository.findById(clinicalInfo_id)
 				.map(entity->new ResponseEntity<ClinicalInfoResp>(new ClinicalInfoResp(entity),HttpStatus.OK))
 				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -161,16 +166,25 @@ public class ClinicalInfoController {
 	
 	private void ClinicalInfoCheck(@Valid ClinicalInfo entity) {
 		//patientID
-		if(!userRepository.existsById(entity.getPatientID())) {
+		if(entity.getPatientID()!=null) {
+			if(userRepository.existsById(entity.getPatientID())) {
+				entity.setPatient(userRepository.findById(entity.getPatientID()).get());
+			}
+		}
+		
+		if(entity.getPatient()==null) {
 			throw new CheckException("patient_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
 		}
 		
 		//doctorID
-		if(!userRepository.existsById(entity.getDoctorID())) {
+		if(entity.getDoctorID()!=null) {
+			if(userRepository.existsById(entity.getDoctorID())) {
+				entity.setDoctor(userRepository.findById(entity.getDoctorID()).get());
+			}
+		}
+		if(entity.getDoctor()==null) {
 			throw new CheckException("doctor_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
 		}
-		entity.setPatient(userRepository.findById(entity.getPatientID()).get());
-		entity.setDoctor(userRepository.findById(entity.getDoctorID()).get());
 		
 		
 	}

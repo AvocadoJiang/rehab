@@ -2,7 +2,7 @@ package xin.nbjzj.rehab.core.entity.request;
 
 import java.util.Date;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,8 +14,8 @@ public class WorkInjuryCertificateReq {
 	
 	
 	@ApiModelProperty(value="临床医疗信息ID")
-	@NotBlank
-	private String clinicalInfo_id;
+	@NotNull
+	private Long clinicalInfo_id;
 	
 	@ApiModelProperty(value="事故地点",example="万科广场建筑工地")
 	private String accident_place;
@@ -35,7 +35,7 @@ public class WorkInjuryCertificateReq {
 	
 	//认定结果
 	@ApiModelProperty(value="受理机构ID")
-	private String admin_id;
+	private Long admin_id;
 	
 	@ApiModelProperty(value="受理机关意见")
 	private String admin_opinion;

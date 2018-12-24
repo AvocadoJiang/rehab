@@ -15,10 +15,10 @@ import xin.nbjzj.rehab.core.entity.WorkInjuryCertificate;
 public class WorkInjuryCertificateResp implements Serializable {
 
 	@ApiModelProperty(value="主键")
-	private String workInjuryCertificate_id;
+	private Long workInjuryCertificate_id;
 	
 	@ApiModelProperty(value="临床医疗信息ID")
-	private String clinicalInfo_id;
+	private Long clinicalInfo_id;
 	
 	@ApiModelProperty(value="病人姓名（要病人其他信息和蒋周杰说）")
 	private String patient_name;

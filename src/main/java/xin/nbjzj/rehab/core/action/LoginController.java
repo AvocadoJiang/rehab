@@ -73,7 +73,7 @@ public class LoginController {
 		}
 		
 		userResp.setIdentity(session.getAttribute("identity").toString());
-		userResp.setUser_id(session.getAttribute("user_id").toString());
+		userResp.setUser_id((Long)session.getAttribute("user_id"));
 		userResp.setUser_name(session.getAttribute("user_name").toString());
 		userResp.setPhone(session.getAttribute("phone").toString());
 		return Mono.just(new ResponseEntity<UserResp>(userResp,HttpStatus.OK));

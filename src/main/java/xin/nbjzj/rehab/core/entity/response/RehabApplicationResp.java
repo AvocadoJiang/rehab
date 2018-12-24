@@ -13,10 +13,10 @@ import xin.nbjzj.rehab.core.entity.RehabApplication;
 @Data
 public class RehabApplicationResp implements Serializable {
 	@ApiModelProperty(value="工伤康复申请ID")
-	private String rehabilitationApplication_id;
+	private Long rehabilitationApplication_id;
 	
 	@ApiModelProperty(value="工伤认定决定书ID")
-	private String workInjuryCertificate_id;;
+	private Long workInjuryCertificate_id;;
 	
 	@ApiModelProperty(value="申请康复治疗理由")
 	private String rehabilitation_reason;

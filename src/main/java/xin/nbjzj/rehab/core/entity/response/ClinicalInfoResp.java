@@ -13,7 +13,7 @@ import xin.nbjzj.rehab.core.entity.ClinicalInfo;
 public class ClinicalInfoResp implements Serializable {
 	
 	@ApiModelProperty(value="临床医疗信息ID")
-	private String clinicalInfo_id;
+	private Long clinicalInfo_id;
 	
 	@ApiModelProperty(value="病人姓名（要病人其他信息和蒋周杰说）")
 	private String patient_name;

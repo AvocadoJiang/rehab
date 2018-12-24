@@ -141,8 +141,13 @@ public class UserController {
 		PairKey key = TrustSDK.generatePairKey(true);
 		user.setPublicKey(key.getPublicKey());
 		user.setPrivateKey(key.getPrivateKey());
+		PairKey keys = null;
+		if(session.getAttribute("public_key")==null||session.getAttribute("private_key")==null) {
+			keys = key;
+		}else {
+			keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
+		}
 		
-		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 
 		blockService.constructBlock(Operation.ADD, user, keys);
 		return new UserResp(user);
@@ -155,7 +160,7 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@DeleteMapping("/{user_id}")
-	public ResponseEntity<Void> delete(@PathVariable("user_id")String user_id,HttpSession session){
+	public ResponseEntity<Void> delete(@PathVariable("user_id")Long user_id,HttpSession session){
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 		return userRepository.findById(user_id)
 				.map(entity->{
@@ -174,7 +179,7 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PutMapping("/{user_id}")
-	public ResponseEntity<UserResp> update(@PathVariable("user_id")String user_id,
+	public ResponseEntity<UserResp> update(@PathVariable("user_id")Long user_id,
 			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody UserReq userReq,HttpSession session){
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 		User user = new User(userReq);
@@ -216,7 +221,7 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/{user_id}")
-	public  ResponseEntity<UserResp> findByID(@PathVariable("user_id")String user_id){
+	public  ResponseEntity<UserResp> findByID(@PathVariable("user_id")Long user_id){
 		return userRepository.findById(user_id)
 				.map(entity->new ResponseEntity<UserResp>(new UserResp(entity),HttpStatus.OK))
 				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));

@@ -6,6 +6,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -30,24 +31,23 @@ import xin.nbjzj.rehab.core.entity.request.ClinicalInfoReq;
 public class ClinicalInfo {
 	
 	@Id
-	@GeneratedValue(generator = "uuid")
-	@GenericGenerator(name = "uuid", strategy = "uuid")
-	private String clinicalInfoID;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long clinicalInfoID;
 	
 	/** 病人 **/
-	@ManyToOne( fetch = FetchType.LAZY,optional=false)
+	@ManyToOne( fetch = FetchType.EAGER,optional=false)
 	@JoinColumn(name="patientID")
 	private User patient;
 	@Transient
-	private String patientID;
+	private Long patientID;
 	
 	
 	/** 医生 **/
-	@ManyToOne( fetch = FetchType.LAZY,optional=false)
+	@ManyToOne( fetch = FetchType.EAGER,optional=false)
 	@JoinColumn(name="doctorID")
 	private User doctor;
 	@Transient
-	private String doctorID;
+	private Long doctorID;
 	
 	/** 摘要 **/
 	private String summary;

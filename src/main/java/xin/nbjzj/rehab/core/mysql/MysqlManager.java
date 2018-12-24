@@ -128,7 +128,6 @@ public class MysqlManager {
         		
             	switch (instruction.getOperation()) {
 				case Operation.ADD:
-					
 					userRepository.save(entity);
 					break;
 				case Operation.UPDATE:
@@ -146,7 +145,6 @@ public class MysqlManager {
         		
             	switch (instruction.getOperation()) {
 				case Operation.ADD:
-					
 					clinicalInfoRepository.save(entity);
 					break;
 				case Operation.UPDATE:
@@ -163,7 +161,6 @@ public class MysqlManager {
         		
             	switch (instruction.getOperation()) {
 				case Operation.ADD:
-					entity.setClinicalInfo(clinicalInfoRepository.findById(entity.getClinicalInfoID()).get());
 					workInjuryCertificateRepository.save(entity);
 					break;
 				case Operation.UPDATE:

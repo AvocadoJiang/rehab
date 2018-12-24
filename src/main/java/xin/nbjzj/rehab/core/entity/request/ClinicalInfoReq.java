@@ -2,7 +2,7 @@ package xin.nbjzj.rehab.core.entity.request;
 
 import java.util.Date;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -15,12 +15,12 @@ import lombok.Data;
 public class ClinicalInfoReq {
 	
 	@ApiModelProperty(value="病人用户的ID")
-	@NotBlank
-	private String patient_id;
+	@NotNull
+	private Long patient_id;
 	
 	@ApiModelProperty(value="医生用户的ID")
-	@NotBlank
-	private String doctor_id;
+	@NotNull
+	private Long doctor_id;
 	
 	@ApiModelProperty(value="摘要",example="病人情况良好，情绪稳定")
 	private String summary;

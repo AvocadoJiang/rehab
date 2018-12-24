@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import xin.nbjzj.rehab.core.entity.User;
 
-public interface UserRepository extends JpaRepository<User,String> {
+public interface UserRepository extends JpaRepository<User,Long> {
 	User findByPhone(String phone);
 	List<User> findByIdentity(String identity);
 }

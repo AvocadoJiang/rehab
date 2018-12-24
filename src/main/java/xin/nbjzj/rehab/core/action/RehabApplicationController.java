@@ -107,7 +107,7 @@ public class RehabApplicationController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@DeleteMapping("/{rehabApplication_id}")
-	public ResponseEntity<Void> delete(@PathVariable("rehabApplication_id")String rehabApplication_id,HttpSession session){
+	public ResponseEntity<Void> delete(@PathVariable("rehabApplication_id")Long rehabApplication_id,HttpSession session){
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 		return rehabApplicationRepository.findById(rehabApplication_id)
 				.map(entity->{
@@ -123,7 +123,7 @@ public class RehabApplicationController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PutMapping("/{rehabApplication_id}")
-	public ResponseEntity<RehabApplicationResp> update(@PathVariable("rehabApplication_id")String rehabApplication_id,
+	public ResponseEntity<RehabApplicationResp> update(@PathVariable("rehabApplication_id")Long rehabApplication_id,
 			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody RehabApplicationReq rehabApplicationReq,HttpSession session){
 		RehabApplication rehabApplication = new RehabApplication(rehabApplicationReq);
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
@@ -133,7 +133,7 @@ public class RehabApplicationController {
 						entity.setDoctorOpinion(rehabApplication.getDoctorOpinion());
 					}
 					
-					if(StringUtils.isNotBlank(rehabApplication.getDoctorID())) {
+					if(rehabApplication.getDoctorID() != null) {
 						entity.setDoctorID(rehabApplication.getDoctorID());
 					}
 					
@@ -158,7 +158,7 @@ public class RehabApplicationController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/{rehabApplication_id}")
-	public  ResponseEntity<RehabApplicationResp> findByID(@PathVariable("rehabApplication_id")String rehabApplication_id){
+	public  ResponseEntity<RehabApplicationResp> findByID(@PathVariable("rehabApplication_id")Long rehabApplication_id){
 		return rehabApplicationRepository.findById(rehabApplication_id)
 				.map(entity->new ResponseEntity<RehabApplicationResp>(new RehabApplicationResp(entity),HttpStatus.OK))
 				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -166,21 +166,26 @@ public class RehabApplicationController {
 	
 	private void RehabApplicationCheck(@Valid RehabApplication entity) {
 		//doctorID
-		if(StringUtils.isNotBlank(entity.getDoctorID())) {
-			if(!userRepository.existsById(entity.getDoctorID())) {
-				throw new CheckException("doctor_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		if(entity.getDoctorID()!=null) {
+			if(userRepository.existsById(entity.getDoctorID())) {
+				entity.setDoctor(userRepository.findById(entity.getDoctorID()).get());
 			}
-			entity.setDoctor(userRepository.findById(entity.getDoctorID()).get());
+		}
+		
+		if(entity.getDoctor()==null) {
+			throw new CheckException("doctor_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
 		}
 		
 		
 		//workInjuryCertificateID
-		if(!workInjuryCertificateRepository.existsById(entity.getWorkInjuryCertificateID())) {
+		if(entity.getWorkInjuryCertificateID()!=null) {
+			if(workInjuryCertificateRepository.existsById(entity.getWorkInjuryCertificateID())) {
+				entity.setWorkInjuryCertificate(workInjuryCertificateRepository.findById(entity.getWorkInjuryCertificateID()).get());
+			}
+		}
+		if(entity.getWorkInjuryCertificate()==null) {
 			throw new CheckException("workInjuryCertificate_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
 		}
-		
-		entity.setWorkInjuryCertificate(workInjuryCertificateRepository.findById(entity.getWorkInjuryCertificateID()).get());
-		
 		
 	}
 }

@@ -3,6 +3,7 @@ package xin.nbjzj.rehab.core.action;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityManager;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.tio.utils.json.Json;
 
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -29,9 +31,12 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import xin.nbjzj.rehab.ApplicationContextProvider;
 import xin.nbjzj.rehab.blockchain.block.Operation;
 import xin.nbjzj.rehab.blockchain.block.PairKey;
 import xin.nbjzj.rehab.core.advice.exceptions.CheckException;
+import xin.nbjzj.rehab.core.entity.ClinicalInfo;
+import xin.nbjzj.rehab.core.entity.User;
 import xin.nbjzj.rehab.core.entity.WorkInjuryCertificate;
 import xin.nbjzj.rehab.core.entity.request.WorkInjuryCertificateReq;
 import xin.nbjzj.rehab.core.entity.response.WorkInjuryCertificateResp;
@@ -40,6 +45,7 @@ import xin.nbjzj.rehab.core.service.BlockService;
 import xin.nbjzj.rehab.core.service.ClinicalInfoRepository;
 import xin.nbjzj.rehab.core.service.UserRepository;
 import xin.nbjzj.rehab.core.service.WorkInjuryCertificateRepository;
+import xin.nbjzj.rehab.socket.distruptor.base.MessageProducer;
 
 @Api(tags = "工伤认定相关接口")
 @RestController
@@ -97,12 +103,6 @@ public class WorkInjuryCertificateController {
 		WorkInjuryCertificate workInjuryCertificate = new WorkInjuryCertificate(workInjuryCertificateReq);
 		//工伤认定自定义完整性进行校验
 		WorkInjuryCertificateCheck(workInjuryCertificate);
-		System.out.println("---------------------------------");
-		System.out.println(workInjuryCertificate);
-		workInjuryCertificate.setClinicalInfo(null);
-		System.out.println(Json.toJson(workInjuryCertificate));
-		System.out.println("+++++++++++++++++++++++++++++++++++");
-		workInjuryCertificate.setClinicalInfo(null);
 		blockService.constructBlock(Operation.ADD, workInjuryCertificate, keys);
 		return new WorkInjuryCertificateResp(workInjuryCertificate);
 	}
@@ -114,7 +114,7 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@DeleteMapping("/{workInjuryCertificate_id}")
-	public ResponseEntity<Void> delete(@PathVariable("workInjuryCertificate_id")String workInjuryCertificate_id,HttpSession session){
+	public ResponseEntity<Void> delete(@PathVariable("workInjuryCertificate_id")Long workInjuryCertificate_id,HttpSession session){
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 		return workInjuryCertificateRepository.findById(workInjuryCertificate_id)
 				.map(entity->{
@@ -130,7 +130,7 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PutMapping("/{workInjuryCertificate_id}")
-	public ResponseEntity<WorkInjuryCertificateResp> update(@PathVariable("workInjuryCertificate_id")String workInjuryCertificate_id,
+	public ResponseEntity<WorkInjuryCertificateResp> update(@PathVariable("workInjuryCertificate_id")Long workInjuryCertificate_id,
 			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody WorkInjuryCertificateReq workInjuryCertificateReq,HttpSession session){
 		WorkInjuryCertificate workInjuryCertificate = new WorkInjuryCertificate(workInjuryCertificateReq);
 		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
@@ -140,7 +140,7 @@ public class WorkInjuryCertificateController {
 						entity.setAccidentPlace(workInjuryCertificate.getAccidentPlace());
 					}
 					
-					if(StringUtils.isNotBlank(workInjuryCertificate.getAdminID())) {
+					if(workInjuryCertificate.getAdminID()!=null) {
 						entity.setAdminID(workInjuryCertificate.getAdminID());
 					}
 					if(StringUtils.isNotBlank(workInjuryCertificate.getAccidentProcess())) {
@@ -178,7 +178,7 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/{workInjuryCertificate_id}")
-	public  ResponseEntity<WorkInjuryCertificateResp> findByID(@PathVariable("workInjuryCertificate_id")String WorkInjuryCertificate_id){
+	public  ResponseEntity<WorkInjuryCertificateResp> findByID(@PathVariable("workInjuryCertificate_id")Long WorkInjuryCertificate_id){
 		return workInjuryCertificateRepository.findById(WorkInjuryCertificate_id)
 				.map(entity->new ResponseEntity<WorkInjuryCertificateResp>(new WorkInjuryCertificateResp(entity),HttpStatus.OK))
 				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -186,20 +186,25 @@ public class WorkInjuryCertificateController {
 	
 	private void WorkInjuryCertificateCheck(@Valid WorkInjuryCertificate entity) {
 		//adminID
-		if(StringUtils.isNotBlank(entity.getAdminID())) {
-			if(!userRepository.existsById(entity.getAdminID())) {
-				throw new CheckException("admin_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
+		if(entity.getAdminID()!=null) {
+			if(userRepository.existsById(entity.getAdminID())) {
+				entity.setAdmin(userRepository.findById(entity.getAdminID()).get());
 			}
-			entity.setAdmin(userRepository.findById(entity.getAdminID()).get());
+		}
+		if(entity.getAdmin()==null) {
+			throw new CheckException("admin_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
 		}
 		
 		
 		//clinicalInfoID
-		if(!clinicalInfoRepository.existsById(entity.getClinicalInfoID())) {
+		if(entity.getClinicalInfoID()!=null) {
+			if(userRepository.existsById(entity.getClinicalInfoID())) {
+				entity.setClinicalInfo(clinicalInfoRepository.findById(entity.getClinicalInfoID()).get());
+			}
+		}
+		if(entity.getClinicalInfo()==null) {
 			throw new CheckException("clinicalInfo_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
 		}
-		
-		entity.setClinicalInfo(clinicalInfoRepository.findById(entity.getClinicalInfoID()).get());
 		
 	}
 	
