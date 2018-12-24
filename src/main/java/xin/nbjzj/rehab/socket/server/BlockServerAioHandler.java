@@ -24,7 +24,7 @@ public class BlockServerAioHandler extends AbstractAioHandler implements ServerA
     @Override
     public void handler(Packet packet, ChannelContext channelContext) {
         BlockPacket blockPacket = (BlockPacket) packet;
-
+        System.out.println(packet);
         //使用Disruptor来publish消息。所有收到的消息都进入Disruptor，同BlockClientAioHandler
         ApplicationContextProvider.getBean(MessageProducer.class).publish(new BaseEvent(blockPacket, channelContext));
     }

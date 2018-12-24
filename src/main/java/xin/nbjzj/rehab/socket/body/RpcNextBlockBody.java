@@ -1,9 +1,12 @@
 package xin.nbjzj.rehab.socket.body;
 
+import lombok.Data;
+
 /**
  * 请求next block时用的包装类
  * @author wuweifeng wrote on 2018/4/25.
  */
+@Data
 public class RpcNextBlockBody extends BaseBody {
     /**
      * blockHash
@@ -22,29 +25,5 @@ public class RpcNextBlockBody extends BaseBody {
         super();
         this.hash = hash;
         this.prevHash = prevHash;
-    }
-
-    public String getPrevHash() {
-        return prevHash;
-    }
-
-    public void setPrevHash(String prevHash) {
-        this.prevHash = prevHash;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    @Override
-    public String toString() {
-        return "RpcNextBlockBody{" +
-                "hash='" + hash + '\'' +
-                ", prevHash='" + prevHash + '\'' +
-                '}';
     }
 }

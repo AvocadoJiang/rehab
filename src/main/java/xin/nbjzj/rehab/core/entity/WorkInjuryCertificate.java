@@ -2,9 +2,18 @@ package xin.nbjzj.rehab.core.entity;
 
 import java.util.Date;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
 import xin.nbjzj.rehab.core.entity.request.WorkInjuryCertificateReq;
@@ -14,28 +23,35 @@ import xin.nbjzj.rehab.core.entity.request.WorkInjuryCertificateReq;
  * @author Jason Chiang
  *
  */
-@Document(collection="workInjuryCertificate")
+@Entity
+@Table(name="workinjurycertificate")
 @Data
 public class WorkInjuryCertificate {
 	
 	@Id
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
 	private String workInjuryCertificateID;
 
 	/** 受理机关 **/
-	@DBRef
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="adminID")
 	private User admin;
+	@Transient
 	private String adminID;
 	
 	/** 临床诊疗信息 **/
-	@DBRef
+	@ManyToOne(fetch = FetchType.LAZY,optional=false)
+	@JoinColumn(name="clinicalInfoID")
 	private ClinicalInfo clinicalInfo;
+	@Transient
 	private String clinicalInfoID;
-	
 	
 	/** 事故地点 **/
 	private String accidentPlace;
 	
 	/** 事故时间 **/
+	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date accidentTime;
 	
 	/** 受伤害经过简述（事故时间、地点、受伤原因、受伤过程、诊断结论） **/
@@ -54,6 +70,7 @@ public class WorkInjuryCertificate {
 	
 	/** 工伤认定决定书结果 **/
 	private boolean workInjuryCertificateResult;
+
 	
 	/** 伤残等级 **/
 	private String disabilityLevel;

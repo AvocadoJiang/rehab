@@ -1,6 +1,7 @@
 package xin.nbjzj.rehab.core.entity.response;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -30,7 +31,7 @@ public class ClinicalInfoResp implements Serializable {
 	private String medical_plan;
 	
 	@ApiModelProperty(value="诊疗时间")
-	private String clinical_time;
+	private Date clinical_time;
 	
 	public ClinicalInfoResp(ClinicalInfo entity) {
 		super();

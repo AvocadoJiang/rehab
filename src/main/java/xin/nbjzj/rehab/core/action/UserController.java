@@ -2,7 +2,14 @@ package xin.nbjzj.rehab.core.action;
 
 
 
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,19 +35,37 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import xin.nbjzj.rehab.blockchain.block.Block;
+import xin.nbjzj.rehab.blockchain.block.BlockBody;
+import xin.nbjzj.rehab.blockchain.block.BlockHeader;
+import xin.nbjzj.rehab.blockchain.block.Instruction;
+import xin.nbjzj.rehab.blockchain.block.Operation;
+import xin.nbjzj.rehab.blockchain.block.PairKey;
 import xin.nbjzj.rehab.blockchain.block.db.DbStore;
+import xin.nbjzj.rehab.blockchain.block.merkle.MerkleTree;
+import xin.nbjzj.rehab.blockchain.common.CommonUtil;
+import xin.nbjzj.rehab.blockchain.common.Sha256;
+import xin.nbjzj.rehab.blockchain.common.TrustSDK;
+import xin.nbjzj.rehab.blockchain.common.exception.TrustSDKException;
+import xin.nbjzj.rehab.blockchain.manager.DbBlockManager;
 import xin.nbjzj.rehab.core.entity.User;
 import xin.nbjzj.rehab.core.entity.User.USER_IDENTITY;
 import xin.nbjzj.rehab.core.entity.request.UserReq;
 import xin.nbjzj.rehab.core.entity.response.UserResp;
-import xin.nbjzj.rehab.core.service.reactive.UserReactive;
+import xin.nbjzj.rehab.core.service.BlockService;
+import xin.nbjzj.rehab.core.service.UserRepository;
+import xin.nbjzj.rehab.socket.body.RpcBlockBody;
+import xin.nbjzj.rehab.socket.client.PacketSender;
+import xin.nbjzj.rehab.socket.packet.BlockPacket;
+import xin.nbjzj.rehab.socket.packet.PacketBuilder;
+import xin.nbjzj.rehab.socket.packet.PacketType;
 @Api(tags = "用户相关接口")
 @RestController
 @RequestMapping("/user")
 public class UserController {
-	private UserReactive userReactive;
-	@Resource
-	private DbStore dbstore;
+	private UserRepository userRepository;
+	private BlockService blockService;
+	
 	
 	@Value("${userphoto.savepath}")
 	private String savepath;
@@ -52,9 +77,10 @@ public class UserController {
 	 * 构造函数 构造器注入
 	 * @param academyRepository
 	 */
-	public UserController(UserReactive userReactive) {
+	public UserController(UserRepository userRepository,BlockService blockService) {
 		super();
-		this.userReactive = userReactive;		
+		this.userRepository = userRepository;		
+		this.blockService = blockService;		
 	}
 	
 	
@@ -64,10 +90,11 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/all")
-	public Flux<UserResp> getAll(){
-		dbstore.put("123","3");
-		System.out.println(dbstore.get("123"));
-		return userReactive.findAll().map(entity->new UserResp(entity));
+	public List<UserResp> getAll() {
+		return userRepository.findAll()
+				.stream()
+				.map(entity->new UserResp(entity))
+				.collect(Collectors.toList());
 	}
 	
 
@@ -79,8 +106,11 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/identity/{identity}")
-	public Flux<UserResp> getPatient(@PathVariable("identity")String identity){
-		return userReactive.findByIdentity(identity.toUpperCase()).map(entity->new UserResp(entity));
+	public List<UserResp> getPatient(@PathVariable("identity")String identity){
+		return userRepository.findByIdentity(identity.toUpperCase())
+				.stream()
+				.map(entity->new UserResp(entity))
+				.collect(Collectors.toList());
 	}
 	
 	
@@ -90,8 +120,11 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping(value="/stream/all",produces=MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<UserResp> streamGetAll(){
-		return userReactive.findAll().map(entity->new UserResp(entity));
+	public List<UserResp> streamGetAll(){
+		return userRepository.findAll()
+				.stream()
+				.map(entity->new UserResp(entity))
+				.collect(Collectors.toList());
 	}
 	
 	
@@ -101,11 +134,18 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PostMapping("/add")
-	public Mono<UserResp> add(@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @Valid @RequestBody UserReq userReq) {
+	public UserResp add(@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @Valid @RequestBody UserReq userReq,HttpSession session) throws TrustSDKException {
 		User user = new User(userReq);
 		//用户自定义完整性进行校验
 		UserCheck(user);
-		return userReactive.save(user).map(entity->new UserResp(entity));
+		PairKey key = TrustSDK.generatePairKey(true);
+		user.setPublicKey(key.getPublicKey());
+		user.setPrivateKey(key.getPrivateKey());
+		
+		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
+
+		blockService.constructBlock(Operation.ADD, user, keys);
+		return new UserResp(user);
 	}
 	
 	@ApiOperation(value = "删除用户" ,  notes="根据用户的user_id来删除一个用户")
@@ -115,11 +155,16 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@DeleteMapping("/{user_id}")
-	public Mono<ResponseEntity<Void>> delete(@PathVariable("user_id")String user_id){
-		return userReactive.findById(user_id)
-				.flatMap(entity->userReactive.delete(entity)
-						.then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	public ResponseEntity<Void> delete(@PathVariable("user_id")String user_id,HttpSession session){
+		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
+		return userRepository.findById(user_id)
+				.map(entity->{
+					blockService.constructBlock(Operation.DELETE, entity, keys);
+					return new ResponseEntity<Void>(HttpStatus.OK);})
+				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+		
+		
+	
 	}
 	
 	@ApiOperation(value = "更新用户信息" ,  notes="通过user_id定位用户并更新其信息")
@@ -129,11 +174,13 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PutMapping("/{user_id}")
-	public Mono<ResponseEntity<UserResp>> update(@PathVariable("user_id")String user_id,
-			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody UserReq userReq){
+	public ResponseEntity<UserResp> update(@PathVariable("user_id")String user_id,
+			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody UserReq userReq,HttpSession session){
+		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 		User user = new User(userReq);
-		return userReactive.findById(user_id)
-				.flatMap(entity->{
+		return userRepository.findById(user_id)
+				.map(entity->{
+					//需要更新的信息（可被更新的信息）
 					if(StringUtils.isNotBlank(user.getPassword())) {
 						entity.setPassword(user.getPassword());
 					}
@@ -156,10 +203,10 @@ public class UserController {
 					
 					
 					UserCheck(entity);
-					return userReactive.save(entity);
-				})
-				.map(entity->new ResponseEntity<UserResp>(new UserResp(entity),HttpStatus.OK))
-				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+					blockService.constructBlock(Operation.UPDATE, entity, keys);
+					
+					return entity;})
+				.map(entity->new ResponseEntity<UserResp>(new UserResp(entity),HttpStatus.OK)).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	
 	@ApiOperation(value = "根据主键查找用户" ,  notes="根据用户user_id查找用户")
@@ -169,15 +216,14 @@ public class UserController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/{user_id}")
-	public  Mono<ResponseEntity<UserResp>> findByID(@PathVariable("user_id")String user_id){
-		return userReactive.findById(user_id)
+	public  ResponseEntity<UserResp> findByID(@PathVariable("user_id")String user_id){
+		return userRepository.findById(user_id)
 				.map(entity->new ResponseEntity<UserResp>(new UserResp(entity),HttpStatus.OK))
-				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	
 	private void UserCheck(@Valid User entity) {
 		USER_IDENTITY identity = User.getUserTypeEnum(entity.getIdentity());
-		
 	}
 	
 }

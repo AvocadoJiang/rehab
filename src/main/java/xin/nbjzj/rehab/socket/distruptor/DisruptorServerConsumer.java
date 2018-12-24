@@ -37,6 +37,7 @@ public class DisruptorServerConsumer implements MessageConsumer {
         BlockPacket blockPacket = baseEvent.getBlockPacket();
         Byte type = blockPacket.getType();
         AbstractBlockHandler<?> handler = handlerMap.get(type);
+        
         if (handler == null) {
             return;
         }

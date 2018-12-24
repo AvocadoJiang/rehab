@@ -30,6 +30,8 @@ import javax.annotation.Resource;
 
 import static xin.nbjzj.rehab.socket.common.Const.GROUP_NAME;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -66,23 +68,45 @@ public class ClientStarter {
     private Map<String,Integer> nodesStatus = Maps.newConcurrentMap();
     private volatile boolean isNodesReady = false; // 节点是否已准备好
 
-  
+
 
     /**
      * 从麦达区块链管理端获取已登记的各服务器ip
      * 隔5分钟去获取一次
      */
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 60000)
     public void fetchOtherServer() {
         String localIp = CommonUtil.getLocalIp();
         logger.info("本机IP：{}",localIp);
-        try {
-            //如果连不上服务器，就不让启动
-            MemberData memberData = restTemplate.getForEntity(managerUrl + "member?name=" + name + "&appId=" + AppId
-                            .value +
-                            "&ip=" +
-                            localIp,
-                    MemberData.class).getBody();
+       
+//        try {
+//            //如果连不上服务器，就不让启动
+//            MemberData memberData = restTemplate.getForEntity(managerUrl + "member?name=" + name + "&appId=" + AppId
+//                            .value +
+//                            "&ip=" +
+//                            localIp,
+//                    MemberData.class).getBody();
+            MemberData memberData = new MemberData();
+            memberData.setCode(0);
+            memberData.setMessage("NO_ERROR");
+            List<Member> members = new ArrayList<Member>();
+            
+            Member m = new Member();
+            m.setAppId("15401190126");
+            m.setCreateTime(new Date());
+            m.setIp("192.168.1.20");
+            m.setName("Jason");
+            m.setUpdateTime(new Date());
+            members.add(m);
+            memberData.setMembers(members);
+            m = new Member();
+            m.setAppId("15401190126");
+            m.setCreateTime(new Date());
+            m.setIp("192.168.1.16");
+            m.setName("Jason");
+            m.setUpdateTime(new Date());
+            members.add(m);
+            memberData.setMembers(members);
             //合法的客户端
             if (memberData.getCode() == 0) {
                 List<Member> memberList = memberData.getMembers();
@@ -100,10 +124,10 @@ public class ClientStarter {
                 logger.error("不是合法有效的已注册的客户端");
                 System.exit(0);
             }
-        } catch (Exception e) {
-            logger.error("请先启动md_blockchain_manager服务，并配置appId等属性，只有合法联盟链成员才能启动该服务");
-            System.exit(0);
-        }
+//	    } catch (Exception e) {
+//	        logger.error("请先启动md_blockchain_manager服务，并配置appId等属性，只有合法联盟链成员才能启动该服务");
+//	        System.exit(0);
+//	    }
 
     }
 

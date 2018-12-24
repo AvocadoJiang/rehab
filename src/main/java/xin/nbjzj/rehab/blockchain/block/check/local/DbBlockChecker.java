@@ -6,7 +6,7 @@ import xin.nbjzj.rehab.blockchain.block.check.BlockChecker;
 import xin.nbjzj.rehab.blockchain.common.Sha256;
 import xin.nbjzj.rehab.blockchain.common.exception.TrustSDKException;
 import xin.nbjzj.rehab.blockchain.manager.DbBlockManager;
-import xin.nbjzj.rehab.blockchain.service.BlockService;
+import xin.nbjzj.rehab.core.service.BlockService;
 
 import org.springframework.stereotype.Component;
 
@@ -101,6 +101,7 @@ public class DbBlockChecker implements BlockChecker {
     	return null;
     }
 
+
     /**
      * 检测区块签名及hash是否符合
      * @param block
@@ -121,8 +122,6 @@ public class DbBlockChecker implements BlockChecker {
 		
 		return true;
 	}
-
-
 
     
 }

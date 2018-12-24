@@ -38,4 +38,5 @@ public class UserReq {
 	
 	@ApiModelProperty(value="用户联系地址",example="浙江省宁波市风华路201号宁波工程学院东校区")
 	private String address;
+	
 }

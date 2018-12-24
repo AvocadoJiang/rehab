@@ -37,7 +37,7 @@ public class WorkInjuryCertificateResp implements Serializable {
 	private String medical_plan;
 	
 	@ApiModelProperty(value="诊疗时间")
-	private String clinical_time;
+	private Date clinical_time;
 	
 	//工伤认定信息
 	@ApiModelProperty(value="事故地点")

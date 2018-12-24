@@ -1,12 +1,24 @@
 package xin.nbjzj.rehab.blockchain.block;
 
+import lombok.Data;
+
 /**
  * 区块body内一条指令
  * @author wuweifeng wrote on 2018/3/2.
  */
-public class Instruction extends InstructionBase {
+@Data
+public class Instruction{
+	
+	 /**
+     * 指令的操作，增删改（1，-1，2）
+     */
+    private byte operation;
     /**
-     * 新的内容
+     * 操作的表名
+     */
+    private String table;
+    /**
+     * 新的内容  实体类
      */
     private String json;
     /**
@@ -25,56 +37,10 @@ public class Instruction extends InstructionBase {
      * 该操作的hash
      */
     private String hash;
+	@Override
+	public String toString() {
+		return this.getOperation() + this.getTable() + this.getJson();
+	}
 
-
-    public String getJson() {
-        return json;
-    }
-
-    public void setJson(String json) {
-        this.json = json;
-    }
-
-    public String getPublicKey() {
-        return publicKey;
-    }
-
-    public void setPublicKey(String publicKey) {
-        this.publicKey = publicKey;
-    }
-
-    public Long getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(Long timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    @Override
-    public String toString() {
-        return "Instruction{" +
-                "json='" + json + '\'' +
-                ", timeStamp=" + timeStamp +
-                ", publicKey='" + publicKey + '\'' +
-                ", sign='" + sign + '\'' +
-                ", hash='" + hash + '\'' +
-                '}';
-    }
+    
 }

@@ -1,9 +1,19 @@
 package xin.nbjzj.rehab.core.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.Date;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import lombok.Data;
 import xin.nbjzj.rehab.core.entity.request.ClinicalInfoReq;
@@ -14,22 +24,29 @@ import xin.nbjzj.rehab.core.entity.request.ClinicalInfoReq;
  *
  */
 
-@Document(collection="clinicalInfo")
+@Entity
+@Table(name="clinicalinfo")
 @Data
 public class ClinicalInfo {
+	
 	@Id
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
 	private String clinicalInfoID;
 	
-	
 	/** 病人 **/
-	@DBRef
+	@ManyToOne( fetch = FetchType.LAZY,optional=false)
+	@JoinColumn(name="patientID")
 	private User patient;
+	@Transient
 	private String patientID;
 	
 	
 	/** 医生 **/
-	@DBRef
+	@ManyToOne( fetch = FetchType.LAZY,optional=false)
+	@JoinColumn(name="doctorID")
 	private User doctor;
+	@Transient
 	private String doctorID;
 	
 	/** 摘要 **/
@@ -42,7 +59,8 @@ public class ClinicalInfo {
 	private String medicalPlan;
 	
 	/** 诊疗时间 **/
-	private String clinicalTime;
+	@DateTimeFormat(pattern="yyyy-MM-dd")
+	private Date clinicalTime;
 
 	public ClinicalInfo() {
 		super();

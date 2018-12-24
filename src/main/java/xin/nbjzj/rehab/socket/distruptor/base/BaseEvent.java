@@ -3,6 +3,8 @@ package xin.nbjzj.rehab.socket.distruptor.base;
 import xin.nbjzj.rehab.socket.packet.BlockPacket;
 import org.tio.core.ChannelContext;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
@@ -10,6 +12,7 @@ import java.io.Serializable;
  *
  * @author wuweifeng wrote on 2018/4/20.
  */
+@Data
 public class BaseEvent implements Serializable {
     private BlockPacket blockPacket;
     private ChannelContext channelContext;
@@ -24,21 +27,5 @@ public class BaseEvent implements Serializable {
     }
 
     public BaseEvent() {
-    }
-
-    public ChannelContext getChannelContext() {
-        return channelContext;
-    }
-
-    public void setChannelContext(ChannelContext channelContext) {
-        this.channelContext = channelContext;
-    }
-
-    public BlockPacket getBlockPacket() {
-        return blockPacket;
-    }
-
-    public void setBlockPacket(BlockPacket blockPacket) {
-        this.blockPacket = blockPacket;
     }
 }

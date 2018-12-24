@@ -18,7 +18,7 @@ public class BlockServerAioListener implements ServerAioListener {
 	@Override
 	public void onAfterConnected(ChannelContext channelContext, boolean isConnected, boolean isReconnect) {
 		log.info("onAfterConnected channelContext:{}, isConnected:{}, isReconnect:{}", channelContext, isConnected, isReconnect);
-
+		
 		//连接后，需要把连接会话对象设置给channelContext
 		//channelContext.setAttribute(new ShowcaseSessionContext());
 	}

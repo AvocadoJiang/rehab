@@ -65,12 +65,12 @@ public class DbBlockGenerator {
 
         logger.info("本地已生成新的Block");
 
-        //同步到sqlite
+        //同步到mysql
         sqliteSync();
     }
 
     /**
-     * sqlite根据block信息，执行sql
+     * mysql根据block信息，执行sql
      */
     @Async
     public void sqliteSync() {

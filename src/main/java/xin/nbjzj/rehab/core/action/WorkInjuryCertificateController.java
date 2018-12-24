@@ -1,5 +1,9 @@
 package xin.nbjzj.rehab.core.action;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.tio.utils.json.Json;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -24,27 +29,33 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import xin.nbjzj.rehab.blockchain.block.Operation;
+import xin.nbjzj.rehab.blockchain.block.PairKey;
 import xin.nbjzj.rehab.core.advice.exceptions.CheckException;
 import xin.nbjzj.rehab.core.entity.WorkInjuryCertificate;
 import xin.nbjzj.rehab.core.entity.request.WorkInjuryCertificateReq;
 import xin.nbjzj.rehab.core.entity.response.WorkInjuryCertificateResp;
 import xin.nbjzj.rehab.core.globle.Constants;
-import xin.nbjzj.rehab.core.service.reactive.WorkInjuryCertificateReactive;
-import xin.nbjzj.rehab.core.service.repository.ClinicalInfoRepository;
-import xin.nbjzj.rehab.core.service.repository.UserRepository;
+import xin.nbjzj.rehab.core.service.BlockService;
+import xin.nbjzj.rehab.core.service.ClinicalInfoRepository;
+import xin.nbjzj.rehab.core.service.UserRepository;
+import xin.nbjzj.rehab.core.service.WorkInjuryCertificateRepository;
 
 @Api(tags = "工伤认定相关接口")
 @RestController
 @RequestMapping("/work")
 public class WorkInjuryCertificateController {
-	private WorkInjuryCertificateReactive workInjuryCertificateReactive;
+	private WorkInjuryCertificateRepository workInjuryCertificateRepository;
 	private ClinicalInfoRepository clinicalInfoRepository;
 	private UserRepository userRepository;
-	public WorkInjuryCertificateController(WorkInjuryCertificateReactive workInjuryCertificateReactive,ClinicalInfoRepository clinicalInfoRepository,UserRepository userRepository) {
+	private BlockService blockService;
+	
+	public WorkInjuryCertificateController(WorkInjuryCertificateRepository workInjuryCertificateRepository,ClinicalInfoRepository clinicalInfoRepository,UserRepository userRepository,BlockService blockService) {
 		super();
-		this.workInjuryCertificateReactive = workInjuryCertificateReactive;
+		this.workInjuryCertificateRepository = workInjuryCertificateRepository;
 		this.clinicalInfoRepository = clinicalInfoRepository;
 		this.userRepository = userRepository;
+		this.blockService = blockService;
 	}
 	
 	@ApiOperation(value = "获取全部工伤认定" ,  notes="获取全部工伤认定,以数组形式一次性返回数据")
@@ -53,8 +64,11 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/all")
-	public Flux<WorkInjuryCertificateResp> getAll(){
-		return workInjuryCertificateReactive.findAll().map(entity->new WorkInjuryCertificateResp(entity));
+	public List<WorkInjuryCertificateResp> getAll(){
+		return workInjuryCertificateRepository.findAll()
+				.stream()
+				.map(entity->new WorkInjuryCertificateResp(entity))
+				.collect(Collectors.toList());
 	}
 	
 	
@@ -64,8 +78,11 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping(value="/stream/all",produces=MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<WorkInjuryCertificateResp> streamGetAll(){
-		return workInjuryCertificateReactive.findAll().map(entity->new WorkInjuryCertificateResp(entity));
+	public List<WorkInjuryCertificateResp> streamGetAll(){
+		return workInjuryCertificateRepository.findAll()
+				.stream()
+				.map(entity->new WorkInjuryCertificateResp(entity))
+				.collect(Collectors.toList());
 	}
 	
 	
@@ -75,11 +92,19 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PostMapping("/add")
-	public Mono<WorkInjuryCertificateResp> add(@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @Valid @RequestBody WorkInjuryCertificateReq workInjuryCertificateReq) {
+	public WorkInjuryCertificateResp add(@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @Valid @RequestBody WorkInjuryCertificateReq workInjuryCertificateReq,HttpSession session) {
+		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
 		WorkInjuryCertificate workInjuryCertificate = new WorkInjuryCertificate(workInjuryCertificateReq);
 		//工伤认定自定义完整性进行校验
 		WorkInjuryCertificateCheck(workInjuryCertificate);
-		return workInjuryCertificateReactive.save(workInjuryCertificate).map(entity->new WorkInjuryCertificateResp(entity));
+		System.out.println("---------------------------------");
+		System.out.println(workInjuryCertificate);
+		workInjuryCertificate.setClinicalInfo(null);
+		System.out.println(Json.toJson(workInjuryCertificate));
+		System.out.println("+++++++++++++++++++++++++++++++++++");
+		workInjuryCertificate.setClinicalInfo(null);
+		blockService.constructBlock(Operation.ADD, workInjuryCertificate, keys);
+		return new WorkInjuryCertificateResp(workInjuryCertificate);
 	}
 	
 	@ApiOperation(value = "删除工伤认定" ,  notes="根据工伤认定的WorkInjuryCertificate_id来删除一个工伤认定")
@@ -89,11 +114,13 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@DeleteMapping("/{workInjuryCertificate_id}")
-	public Mono<ResponseEntity<Void>> delete(@PathVariable("workInjuryCertificate_id")String workInjuryCertificate_id){
-		return workInjuryCertificateReactive.findById(workInjuryCertificate_id)
-				.flatMap(entity->workInjuryCertificateReactive.delete(entity)
-						.then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK))))
-				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+	public ResponseEntity<Void> delete(@PathVariable("workInjuryCertificate_id")String workInjuryCertificate_id,HttpSession session){
+		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
+		return workInjuryCertificateRepository.findById(workInjuryCertificate_id)
+				.map(entity->{
+					blockService.constructBlock(Operation.DELETE, entity, keys);
+					return new ResponseEntity<Void>(HttpStatus.OK);})
+				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	
 	@ApiOperation(value = "更新工伤认定信息" ,  notes="通过WorkInjuryCertificate_id定位工伤认定并更新其信息")
@@ -103,11 +130,12 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@PutMapping("/{workInjuryCertificate_id}")
-	public Mono<ResponseEntity<WorkInjuryCertificateResp>> update(@PathVariable("workInjuryCertificate_id")String workInjuryCertificate_id,
-			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody WorkInjuryCertificateReq workInjuryCertificateReq){
+	public ResponseEntity<WorkInjuryCertificateResp> update(@PathVariable("workInjuryCertificate_id")String workInjuryCertificate_id,
+			@ApiParam(value="需要更新的课时信息,以json格式放入Request Body中",required=true) @RequestBody WorkInjuryCertificateReq workInjuryCertificateReq,HttpSession session){
 		WorkInjuryCertificate workInjuryCertificate = new WorkInjuryCertificate(workInjuryCertificateReq);
-		return workInjuryCertificateReactive.findById(workInjuryCertificate_id)
-				.flatMap(entity->{
+		PairKey keys = new PairKey(session.getAttribute("public_key").toString(),session.getAttribute("private_key").toString());
+		return workInjuryCertificateRepository.findById(workInjuryCertificate_id)
+				.map(entity->{
 					if(StringUtils.isNotBlank(workInjuryCertificate.getAccidentPlace())) {
 						entity.setAccidentPlace(workInjuryCertificate.getAccidentPlace());
 					}
@@ -136,10 +164,11 @@ public class WorkInjuryCertificateController {
 					
 					
 					WorkInjuryCertificateCheck(entity);
-					return workInjuryCertificateReactive.save(entity);
+					blockService.constructBlock(Operation.UPDATE, entity, keys);
+					return entity;
 				})
 				.map(entity->new ResponseEntity<WorkInjuryCertificateResp>(new WorkInjuryCertificateResp(entity),HttpStatus.OK))
-				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	
 	@ApiOperation(value = "根据主键查找工伤认定" ,  notes="根据工伤认定WorkInjuryCertificate_id查找工伤认定")
@@ -149,10 +178,10 @@ public class WorkInjuryCertificateController {
         @ApiResponse(code = 400, message = "客户端请求的语法错误,服务器无法理解"),
         @ApiResponse(code = 405, message = "权限不足")})
 	@GetMapping("/{workInjuryCertificate_id}")
-	public  Mono<ResponseEntity<WorkInjuryCertificateResp>> findByID(@PathVariable("workInjuryCertificate_id")String WorkInjuryCertificate_id){
-		return workInjuryCertificateReactive.findById(WorkInjuryCertificate_id)
+	public  ResponseEntity<WorkInjuryCertificateResp> findByID(@PathVariable("workInjuryCertificate_id")String WorkInjuryCertificate_id){
+		return workInjuryCertificateRepository.findById(WorkInjuryCertificate_id)
 				.map(entity->new ResponseEntity<WorkInjuryCertificateResp>(new WorkInjuryCertificateResp(entity),HttpStatus.OK))
-				.defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+				.orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
 	}
 	
 	private void WorkInjuryCertificateCheck(@Valid WorkInjuryCertificate entity) {
@@ -165,7 +194,7 @@ public class WorkInjuryCertificateController {
 		}
 		
 		
-		
+		//clinicalInfoID
 		if(!clinicalInfoRepository.existsById(entity.getClinicalInfoID())) {
 			throw new CheckException("clinicalInfo_id",Constants.REFERENTIAL_INTEGRITY_CHECK_FAILED);
 		}

@@ -1,8 +1,11 @@
 package xin.nbjzj.rehab.socket.body;
 
+import lombok.Data;
+
 /**
  * @author wuweifeng wrote on 2018/4/25.
  */
+@Data
 public class RpcSimpleBlockBody extends BaseBody {
     /**
      * blockHash
@@ -16,20 +19,5 @@ public class RpcSimpleBlockBody extends BaseBody {
     public RpcSimpleBlockBody(String hash) {
         super();
         this.hash = hash;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    @Override
-    public String toString() {
-        return "RpcSimpleBlockBody{" +
-                "hash='" + hash + '\'' +
-                '}';
     }
 }

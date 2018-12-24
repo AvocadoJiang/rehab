@@ -1,11 +1,13 @@
 package xin.nbjzj.rehab.socket.body;
 
+import lombok.Data;
 import xin.nbjzj.rehab.blockchain.block.Block;
 
 /**
  * 校验block是否合法，同意、拒绝区块生成请求
  * @author wuweifeng wrote on 2018/3/12.
  */
+@Data
 public class RpcCheckBlockBody extends RpcBlockBody {
     /**
      * 0是正常同意，-1区块number错误，-2没有权限，-3hash错误，-4时间错误，-10不合法的next block
@@ -29,27 +31,4 @@ public class RpcCheckBlockBody extends RpcBlockBody {
         this.message = message;
     }
 
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        return "RpcCheckBlockBody{" +
-                "code=" + code +
-                ", message='" + message + '\'' +
-                '}';
-    }
 }

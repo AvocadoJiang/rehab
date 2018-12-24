@@ -1,5 +1,6 @@
 package xin.nbjzj.rehab.socket.body;
 
+import lombok.Data;
 import xin.nbjzj.rehab.blockchain.common.AppId;
 import xin.nbjzj.rehab.blockchain.common.CommonUtil;
 
@@ -8,6 +9,7 @@ import xin.nbjzj.rehab.blockchain.common.CommonUtil;
  * @author tanyaowu
  * 2017年3月27日 上午12:12:17
  */
+@Data
 public class BaseBody {
 
 	/**
@@ -27,53 +29,5 @@ public class BaseBody {
      */
 	private String appId = AppId.value;
 
-    public BaseBody() {
-    }
 
-    /**
-	 * @return the time
-	 */
-	public Long getTime() {
-		return time;
-	}
-
-	/**
-	 * @param time the time to set
-	 */
-	public void setTime(Long time) {
-		this.time = time;
-	}
-
-	public String getMessageId() {
-		return messageId;
-	}
-
-	public void setMessageId(String messageId) {
-		this.messageId = messageId;
-	}
-
-    public String getResponseMsgId() {
-        return responseMsgId;
-    }
-
-    public void setResponseMsgId(String responseMsgId) {
-        this.responseMsgId = responseMsgId;
-    }
-
-    public String getAppId() {
-        return appId;
-    }
-
-    public void setAppId(String appId) {
-        this.appId = appId;
-    }
-
-    @Override
-    public String toString() {
-        return "BaseBody{" +
-                "time=" + time +
-                ", messageId='" + messageId + '\'' +
-                ", responseMsgId='" + responseMsgId + '\'' +
-                '}';
-    }
 }

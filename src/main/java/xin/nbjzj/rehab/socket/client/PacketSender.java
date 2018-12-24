@@ -24,6 +24,7 @@ public class PacketSender {
     public void sendGroup(BlockPacket blockPacket) {
         //对外发出client请求事件
         ApplicationContextProvider.publishEvent(new ClientRequestEvent(blockPacket));
+        
         //发送到一个group
         Aio.sendToGroup(clientGroupContext, GROUP_NAME, blockPacket);
     }

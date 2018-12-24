@@ -29,7 +29,7 @@ public class CORSFilter implements Filter{
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
 			throws IOException, ServletException {
 		
-		System.out.println("跨域过滤器");
+		
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
 		//跨域访问

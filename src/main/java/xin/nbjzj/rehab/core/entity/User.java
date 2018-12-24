@@ -1,10 +1,12 @@
 package xin.nbjzj.rehab.core.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
-
+import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
 import xin.nbjzj.rehab.core.entity.request.LoginReq;
@@ -17,11 +19,14 @@ import xin.nbjzj.rehab.core.entity.request.UserReq;
  * @author Jason Chiang
  *
  */
-@Document(collection="user")
+@Entity
+@Table(name="user")
 @Data
 public class User {
 	
 	@Id
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
 	private String userID;
 	
 	
@@ -38,7 +43,7 @@ public class User {
 	private String gender;
 	
 	/** 联系方式 **/
-	@Indexed(unique=true)
+	@Column(unique=true)
 	private String phone;
 	
 	/** 身份证号码 **/
@@ -50,6 +55,11 @@ public class User {
 	/** 联系地址 **/
 	private String address;
 	
+	/** 公钥 **/
+	private String publicKey;
+	
+	/** 私钥 **/
+	private String privateKey;
 	
 	/** 用户账户身份 **/
 	public static enum USER_IDENTITY
@@ -88,7 +98,7 @@ public class User {
 		this.password = req.getPassword();
 		this.phone = req.getPhone();
 		this.userName = req.getUser_name();
-		
+	
 	}
 	
 	public User(LoginReq req) {

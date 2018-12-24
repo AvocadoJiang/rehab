@@ -1,9 +1,17 @@
 package xin.nbjzj.rehab.core.entity;
 
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.GenericGenerator;
 
 import lombok.Data;
 import xin.nbjzj.rehab.core.entity.request.RehabApplicationReq;
@@ -13,16 +21,21 @@ import xin.nbjzj.rehab.core.entity.request.RehabApplicationReq;
  * @author Jason Chiang
  *
  */
-@Document(collection="rehabilitationApplication")
+@Entity
+@Table(name="rehabapplication")
 @Data
 public class RehabApplication {
 	@Id
+	@GeneratedValue(generator = "uuid")
+	@GenericGenerator(name = "uuid", strategy = "uuid")
 	private String rehabilitationApplicationID;
 	
 	
 	/** 工伤认定决定书 **/
-	@DBRef
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="workInjuryCertificateID")
 	private WorkInjuryCertificate workInjuryCertificate;
+	@Transient
 	private String workInjuryCertificateID;
 	
 	/** 申请康复治疗理由 **/
@@ -30,8 +43,10 @@ public class RehabApplication {
 	
 	//申请结果
 	/** 主治医生 **/
-	@DBRef
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="doctorID")
 	private User doctor;
+	@Transient
 	private String doctorID;
 	
 	/** 主治医生意见 **/

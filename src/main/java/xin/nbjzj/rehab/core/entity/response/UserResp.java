@@ -36,6 +36,11 @@ public class UserResp implements Serializable {
 	@ApiModelProperty(value="用户联系地址")
 	private String address;
 	
+	@ApiModelProperty(value="公钥,ECDSA算法")
+	private String public_key;
+	
+	
+	
 	public UserResp(User entity) {
 		super();
 		this.user_id = entity.getUserID();
@@ -46,6 +51,7 @@ public class UserResp implements Serializable {
 		this.id_number = entity.getIdNumber();
 		this.institution = entity.getInstitution();
 		this.address = entity.getAddress();
+		this.public_key = entity.getPublicKey();
 	}
 	
 	public UserResp() {

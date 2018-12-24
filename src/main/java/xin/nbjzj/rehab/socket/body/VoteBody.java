@@ -1,11 +1,13 @@
 package xin.nbjzj.rehab.socket.body;
 
+import lombok.Data;
 import xin.nbjzj.rehab.socket.pbft.msg.VoteMsg;
 
 /**
  * pbft投票
  * @author wuweifeng wrote on 2018/4/25.
  */
+@Data
 public class VoteBody extends BaseBody {
     private VoteMsg voteMsg;
 
@@ -18,11 +20,4 @@ public class VoteBody extends BaseBody {
         this.voteMsg = voteMsg;
     }
 
-    public VoteMsg getVoteMsg() {
-        return voteMsg;
-    }
-
-    public void setVoteMsg(VoteMsg voteMsg) {
-        this.voteMsg = voteMsg;
-    }
 }

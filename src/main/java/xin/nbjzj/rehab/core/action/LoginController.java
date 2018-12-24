@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 import xin.nbjzj.rehab.core.entity.User;
 import xin.nbjzj.rehab.core.entity.request.LoginReq;
 import xin.nbjzj.rehab.core.entity.response.UserResp;
-import xin.nbjzj.rehab.core.service.repository.UserRepository;
+import xin.nbjzj.rehab.core.service.UserRepository;
 
 @Api(tags = "登录相关接口")
 @RestController
@@ -55,7 +55,8 @@ public class LoginController {
 		session.setAttribute("identity", userResp.getIdentity());
 		session.setAttribute("user_id", userResp.getUser_id());
 		session.setAttribute("user_name", userResp.getUser_name());
-		
+		session.setAttribute("public_key", myuser.getPublicKey());
+		session.setAttribute("private_key", myuser.getPrivateKey());
 		return Mono.just(new ResponseEntity<UserResp>(userResp,HttpStatus.OK));
 	}
 	

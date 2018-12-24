@@ -1,14 +1,15 @@
 package xin.nbjzj.rehab.core.advice;
 
 
+import java.io.UnsupportedEncodingException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.support.WebExchangeBindException;
 
-import com.mongodb.DuplicateKeyException;
-
+import xin.nbjzj.rehab.blockchain.common.exception.TrustSDKException;
 import xin.nbjzj.rehab.core.advice.exceptions.CheckException;
 
 /**
@@ -40,19 +41,24 @@ public class CheckAdvice {
 	public ResponseEntity<String> handleBindException(IllegalArgumentException e){
 		return new ResponseEntity<String>(e.getMessage(),HttpStatus.BAD_REQUEST);
 	}
-	
 	/**
-	 * 关键字重复异常
+	 * ECDSA算法公私钥生成异常
 	 * @param e
 	 * @return
 	 */
-	@ExceptionHandler(DuplicateKeyException.class)
-	public ResponseEntity<String> handleBindException(DuplicateKeyException e){
+	@ExceptionHandler(TrustSDKException.class)
+	public ResponseEntity<String> handleBindException(TrustSDKException e){
 		return new ResponseEntity<String>(e.getMessage(),HttpStatus.BAD_REQUEST);
 	}
-	
-	
 
-	
+	/**
+	 * String转byte错误异常
+	 * @param e
+	 * @return
+	 */
+	@ExceptionHandler(UnsupportedEncodingException.class)
+	public ResponseEntity<String> handleBindException(UnsupportedEncodingException e){
+		return new ResponseEntity<String>(e.getMessage(),HttpStatus.BAD_REQUEST);
+	}
 	
 }

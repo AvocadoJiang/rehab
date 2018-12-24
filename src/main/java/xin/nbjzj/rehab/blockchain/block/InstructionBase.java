@@ -1,9 +1,12 @@
 package xin.nbjzj.rehab.blockchain.block;
 
+import lombok.Data;
+
 /**
  * blockBody内一条指令的基础属性
  * @author wuweifeng wrote on 2018/4/4.
  */
+@Data
 public class InstructionBase {
     /**
      * 指令的操作，增删改（1，-1，2）
@@ -22,45 +25,4 @@ public class InstructionBase {
      */
     private String instructionId;
 
-    public byte getOperation() {
-        return operation;
-    }
-
-    public void setOperation(byte operation) {
-        this.operation = operation;
-    }
-
-    public String getTable() {
-        return table;
-    }
-
-    public void setTable(String table) {
-        this.table = table;
-    }
-
-    public String getOldJson() {
-        return oldJson;
-    }
-
-    public void setOldJson(String oldJson) {
-        this.oldJson = oldJson;
-    }
-
-    public String getInstructionId() {
-        return instructionId;
-    }
-
-    public void setInstructionId(String instructionId) {
-        this.instructionId = instructionId;
-    }
-
-    @Override
-    public String toString() {
-        return "InstructionReverse{" +
-                "operation=" + operation +
-                ", table='" + table + '\'' +
-                ", oldJson='" + oldJson + '\'' +
-                ", instructionId='" + instructionId + '\'' +
-                '}';
-    }
 }

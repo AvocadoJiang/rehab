@@ -1,6 +1,10 @@
 package xin.nbjzj.rehab.core.entity.request;
 
+import java.util.Date;
+
 import javax.validation.constraints.NotBlank;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -27,6 +31,7 @@ public class ClinicalInfoReq {
 	@ApiModelProperty(value="诊疗计划",example="黑天吃白片，不瞌睡；白天吃黑片，睡得香。")
 	private String medical_plan;
 	
-	@ApiModelProperty(value="诊疗时间",example="2018-11-16 08:00")
-	private String clinical_time;
+	@ApiModelProperty(value="诊疗时间",example="2018-11-16")
+	@DateTimeFormat(pattern="yyyy-MM-dd") 
+	private Date clinical_time;
 }
