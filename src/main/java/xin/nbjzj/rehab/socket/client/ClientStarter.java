@@ -71,8 +71,8 @@ public class ClientStarter {
 
 
     /**
-     * 从麦达区块链管理端获取已登记的各服务器ip
-     * 隔5分钟去获取一次
+     * 从区块链管理端获取已登记的各服务器ip
+     * 隔1分钟去获取一次
      */
     @Scheduled(fixedRate = 60000)
     public void fetchOtherServer() {
@@ -92,18 +92,18 @@ public class ClientStarter {
             List<Member> members = new ArrayList<Member>();
             
             Member m = new Member();
-            m.setAppId("15401190126");
+            m.setAppId("NODE1");
             m.setCreateTime(new Date());
-            m.setIp("192.168.1.20");
-            m.setName("Jason");
+            m.setIp("10.28.103.85");
+            m.setName("Jason1");
             m.setUpdateTime(new Date());
             members.add(m);
             memberData.setMembers(members);
             m = new Member();
-            m.setAppId("15401190126");
+            m.setAppId("NODE2");
             m.setCreateTime(new Date());
-            m.setIp("192.168.1.16");
-            m.setName("Jason");
+            m.setIp("10.28.81.171");
+            m.setName("Jason2");
             m.setUpdateTime(new Date());
             members.add(m);
             memberData.setMembers(members);
