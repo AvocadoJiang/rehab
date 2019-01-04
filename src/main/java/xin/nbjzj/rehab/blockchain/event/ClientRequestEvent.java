@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationEvent;
 
 /**
  * 客户端对外发请求时会触发该Event
- * @author wuweifeng wrote on 2018/3/17.
+ * @author Jason wrote on 2019/12/17.
  */
 public class ClientRequestEvent extends ApplicationEvent {
     public ClientRequestEvent(BlockPacket blockPacket) {

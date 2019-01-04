@@ -97,7 +97,9 @@ public class ClientStarter {
             m.setIp("10.28.103.85");
             m.setName("Jason1");
             m.setUpdateTime(new Date());
-            members.add(m);
+            if(!localIp.equals(m.getIp())) {
+            	members.add(m);
+            }
             memberData.setMembers(members);
             m = new Member();
             m.setAppId("NODE2");
@@ -105,7 +107,10 @@ public class ClientStarter {
             m.setIp("10.28.81.171");
             m.setName("Jason2");
             m.setUpdateTime(new Date());
-            members.add(m);
+            if(!localIp.equals(m.getIp())) {
+            	members.add(m);
+            }
+            
             memberData.setMembers(members);
             //合法的客户端
             if (memberData.getCode() == 0) {

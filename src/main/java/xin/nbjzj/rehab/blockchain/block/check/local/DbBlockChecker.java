@@ -108,17 +108,9 @@ public class DbBlockChecker implements BlockChecker {
      * @return
      */
 	private boolean checkBlockHashSign(Block block) {
-//		BlockRequestBody blockRequestBody = new BlockRequestBody();
-//		blockRequestBody.setBlockBody(block.getBlockBody());
-//		blockRequestBody.setPublicKey(block.getBlockHeader().getPublicKey());
-//		try {
-//			if(blockService.check(blockRequestBody) != null) return false;
-//		} catch (TrustSDKException e) {
-//			return false;
-//		}
-//		
-//		String hash = Sha256.sha256(block.getBlockHeader().toString() + block.getBlockBody().toString());
-//		if(!StrUtil.equals(block.getHash(),hash)) return false;
+	
+		String hash = Sha256.sha256(block.getBlockHeader().toString() + block.getBlockBody().toString());
+		if(!StrUtil.equals(block.getHash(),hash)) return false;
 		
 		return true;
 	}

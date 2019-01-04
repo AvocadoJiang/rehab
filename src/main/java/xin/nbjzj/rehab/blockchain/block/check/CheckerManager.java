@@ -25,7 +25,6 @@ public class CheckerManager {
     	if (code != 0) {
             return new RpcCheckBlockBody(-1, "block的签名不合法");
         }
-    	
         int number = blockChecker.checkNum(block);
         if (number != 0) {
              return new RpcCheckBlockBody(-1, "block的number不合法");
@@ -38,8 +37,6 @@ public class CheckerManager {
         if (hash != 0) {
             return new RpcCheckBlockBody(-3, "hash校验不通过");
         }
-        
-
         return new RpcCheckBlockBody(0, "OK", block);
     }
 
